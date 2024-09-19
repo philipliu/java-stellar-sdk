@@ -211,16 +211,25 @@ public class AuthTest {
     KeyPair signer =
         KeyPair.fromSecretSeed("SAEZSI6DY7AXJFIYA4PM6SIBNEYYXIEM2MSOTHFGKHDW32MBQ7KVO6EN");
     Auth.Signer entrySigner =
-        preimage -> {
-          byte[] data;
-          try {
-            data = preimage.toXdrByteArray();
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+        new Auth.Signer() {
+          @Override
+          public byte[] sign(HashIDPreimage preimage) {
+            byte[] data;
+            try {
+              data = preimage.toXdrByteArray();
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+            }
+            byte[] payload = Util.hash(data);
+            return signer.sign(payload);
           }
-          byte[] payload = Util.hash(data);
-          return signer.sign(payload);
+
+          @Override
+          public byte[] publicKey() {
+            return signer.getPublicKey();
+          }
         };
+
     long validUntilLedgerSeq = 654656L;
     Network network = Network.TESTNET;
 
@@ -311,16 +320,25 @@ public class AuthTest {
     KeyPair signer =
         KeyPair.fromSecretSeed("SAEZSI6DY7AXJFIYA4PM6SIBNEYYXIEM2MSOTHFGKHDW32MBQ7KVO6EN");
     Auth.Signer entrySigner =
-        preimage -> {
-          byte[] data;
-          try {
-            data = preimage.toXdrByteArray();
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+        new Auth.Signer() {
+          @Override
+          public byte[] sign(HashIDPreimage preimage) {
+            byte[] data;
+            try {
+              data = preimage.toXdrByteArray();
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+            }
+            byte[] payload = Util.hash(data);
+            return signer.sign(payload);
           }
-          byte[] payload = Util.hash(data);
-          return signer.sign(payload);
+
+          @Override
+          public byte[] publicKey() {
+            return signer.getPublicKey();
+          }
         };
+
     long validUntilLedgerSeq = 654656L;
     Network network = Network.TESTNET;
 
@@ -548,16 +566,25 @@ public class AuthTest {
     KeyPair signer =
         KeyPair.fromSecretSeed("SAEZSI6DY7AXJFIYA4PM6SIBNEYYXIEM2MSOTHFGKHDW32MBQ7KVO6EN");
     Auth.Signer entrySigner =
-        preimage -> {
-          byte[] data;
-          try {
-            data = preimage.toXdrByteArray();
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+        new Auth.Signer() {
+          @Override
+          public byte[] sign(HashIDPreimage preimage) {
+            byte[] data;
+            try {
+              data = preimage.toXdrByteArray();
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+            }
+            byte[] payload = Util.hash(data);
+            return signer.sign(payload);
           }
-          byte[] payload = Util.hash(data);
-          return signer.sign(payload);
+
+          @Override
+          public byte[] publicKey() {
+            return signer.getPublicKey();
+          }
         };
+
     long validUntilLedgerSeq = 654656L;
     Network network = Network.TESTNET;
 

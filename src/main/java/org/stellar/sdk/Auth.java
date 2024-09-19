@@ -78,15 +78,23 @@ public class Auth {
   public static SorobanAuthorizationEntry authorizeEntry(
       SorobanAuthorizationEntry entry, KeyPair signer, Long validUntilLedgerSeq, Network network) {
     Signer entrySigner =
-        preimage -> {
-          byte[] data;
-          try {
-            data = preimage.toXdrByteArray();
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+        new Signer() {
+          @Override
+          public byte[] sign(HashIDPreimage preimage) {
+            byte[] data;
+            try {
+              data = preimage.toXdrByteArray();
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+            }
+            byte[] payload = Util.hash(data);
+            return signer.sign(payload);
           }
-          byte[] payload = Util.hash(data);
-          return signer.sign(payload);
+
+          @Override
+          public byte[] publicKey() {
+            return signer.getPublicKey();
+          }
         };
 
     return authorizeEntry(entry, entrySigner, validUntilLedgerSeq, network);
@@ -179,7 +187,7 @@ public class Auth {
                     .build())
             .build();
     byte[] signature = signer.sign(preimage);
-    byte[] publicKey = Address.fromSCAddress(addressCredentials.getAddress()).getBytes();
+    byte[] publicKey = signer.publicKey();
 
     byte[] data;
     try {
@@ -234,12 +242,22 @@ public class Auth {
       SorobanAuthorizedInvocation invocation,
       Network network) {
     Signer entrySigner =
-        preimage -> {
-          try {
-            byte[] payload = Util.hash(preimage.toXdrByteArray());
+        new Signer() {
+          @Override
+          public byte[] sign(HashIDPreimage preimage) {
+            byte[] data;
+            try {
+              data = preimage.toXdrByteArray();
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Unable to convert preimage to bytes", e);
+            }
+            byte[] payload = Util.hash(data);
             return signer.sign(payload);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
+          }
+
+          @Override
+          public byte[] publicKey() {
+            return signer.getPublicKey();
           }
         };
     return authorizeInvocation(
@@ -299,5 +317,6 @@ public class Auth {
   /** An interface for signing a {@link HashIDPreimage} to produce a signature. */
   public interface Signer {
     byte[] sign(HashIDPreimage preimage);
+    byte[] publicKey();
   }
 }
